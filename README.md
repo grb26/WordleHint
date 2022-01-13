@@ -1,0 +1,2 @@
+# WordleHint
+Cheat at Wordle.
