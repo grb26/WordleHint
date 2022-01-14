@@ -7,13 +7,14 @@ Wordle is a great little online word game: https://www.powerlanguage.co.uk/wordl
 This is a python3 script, so you need to have python3 installed. Then you can just save the files to your computer and run `wordle.py` from the command line. The word list (wordlelist.txt) needs to be in the same directory, unless you explicitly specify the path using -l. 
 
 ## Parameters
-
--g <>    the green letter pattern, with dots where we don't have green letters e.g. 'F.LES'
--y <>    the yellow letters, in any order
--e <>    the eliminated (grey) letters, in any order
--l <>    specify a different word list (default is ./wordlelist.txt)
--n <>    specify the number of suggested next guesses (default is 1)
--p       print all possible candidate words (normally only done if <20 candidates)
+| Parameter | Description |
+|-----------|-------------|
+| -g <> | the green letter pattern, with dots where we don't have green letters e.g. 'CH..T' |
+| -y <> | the yellow letters, in any order |
+| -e <> | the eliminated (grey) letters, in any order |
+| -l <> | specify a different word list (default is ./wordlelist.txt) |
+| -n <> | specify the number of suggested next guesses (default is 1) |
+| -p | print all possible candidate words (normally only done if <20 candidates) |
 
 ## Use
 
