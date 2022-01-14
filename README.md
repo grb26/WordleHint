@@ -1,6 +1,6 @@
 # WordleHint
 Cheat at Wordle.
-
+Wordle is a great little online word game: https://www.powerlanguage.co.uk/wordle/
 
 How to use:
 
@@ -11,7 +11,8 @@ Wordle starts with a blank 5-character word. We might guess 'SORES' first. The r
 So we know that there is an E in the fourth position, and that the letters S, O and R do not appear.
 
 We can now use WordleHint:
-$ ./wordle.py -g '...e.' -e 'sor'
+
+`$ ./wordle.py -g '...e.' -e 'sor'`
 
 Here we have specified the green squares (-g) as four unknowns (.) plus an 'e' in position 4, and the eliminated letters (-e) as s, o & r. Note that upper/lower case doesn't matter. 
 
@@ -21,7 +22,7 @@ The output tells us that there are now 238 possible words, and our next guess sh
 
 Now we have a yellow letter (A) and three more eliminated (L, V, D). 
 
-$ ./wordle.py -g '...e.' -e 'sorlvd' -y 'a'
+`$ ./wordle.py -g '...e.' -e 'sorlvd' -y 'a'`
 
 The next guess is 'WAKEN':
 
@@ -29,6 +30,6 @@ The next guess is 'WAKEN':
 
 No more successes, but three more eliminations: W, K & N.
 
-$ ./wordle.py -g '...e.' -e 'sorlvdwkn' -y 'a'
+`$ ./wordle.py -g '...e.' -e 'sorlvdwkn' -y 'a'`
 
 We're now down to five possible words, and as it happens, the first one is correct: 'ABBEY'. 
