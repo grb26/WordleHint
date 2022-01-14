@@ -59,11 +59,11 @@ n = 1
 
 for opt,arg in opts:
     if opt == '-g':
-        greenregex = arg
+        greenregex = arg.lower()
     if opt == '-y':
-        yellowletters = arg
+        yellowletters = arg.lower()
     if opt == '-e':
-        greyletters = arg
+        greyletters = arg.lower()
     if opt == '-p':
         printall = True
     if opt == '-l':
