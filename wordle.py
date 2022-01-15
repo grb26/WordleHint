@@ -168,79 +168,62 @@ if n>1:
     for w in m1bestwords[1:n]:
         print(w[0])
 
-### Implementation 2: full brute-force of entire solution space
+### Implementation 2: don't treat each char separately, see which word best halves the remaining solution space
 m2start = time.time()
 
-# Function to calculate the expected guesses until a single candidate is reached, for each potential guess in wordlist
-# Returns a dictionary of { candidate_word:expected_guesses }. Sort this by value to find the best next guess.
-def findTreeDepth(wordlist, green, yellow, grey, prefix=""):
+# When converting to a score, the aim is to bisect the option space, so closest to 50% match is best
+goal = len(words)/2
 
-    #print("Entering fTD with",len(wordlist),"words and g/y/g as",green, yellow, grey)
+# Initialise a dictionary to keep score
+m2dict = {}
 
-    # If there's only one candidate, we have a winner.
-    if len(wordlist) == 1:
-        return {wordlist[0]:1}
+# If I were to guess guessword...
+for guessword in words:
 
-    ## If multiple possibilities, recursively try out options
+    guesswordscore = 0
 
-    # Initialise a dictionary to return
-    returndict = {}
+    #print("Debug:",prefix,guessword)
 
-    # If I were to guess guessword...
-    for guessword in wordlist:
+    # And if the real answer happens to be trueword...
+    for trueword in words:
 
-        guesswordscore = 0
+        # Maybe we got lucky...
+        if guessword == trueword:
+            continue
 
-        #print("Debug:",prefix,guessword)
+        # If not, then the resulting pattern updates would be...
+        newgreen=greenpattern
+        newyellow=yellowletters
+        newgrey=greyletters
+        for pos in range(5):
+            g = guessword[pos]
+            t = trueword[pos]
+            if g == t:
+                newgreen[pos] == g
+            elif g in trueword and not g in newgreen and not g in newyellow:
+                newyellow+=g
+            elif not g in trueword and not g in newgrey:
+                newgrey+=g
 
-        # And if the real answer happens to be trueword...
-        for trueword in wordlist:
+        # So now I can generate a new wordlist...
+        newwords = list(words)
+        newwords.remove(guessword)
+        newregex = buildRegex(newgreen, newyellow, newgrey)
+        filterWords(newwords, newregex)
 
-            # Maybe we got lucky...
-            if guessword == trueword:
-                continue
+        # ...and record the size of the resulting search space
+        guesswordscore += len(newwords)
 
-            #print("Debug: guessword is",guessword,"trueword is",trueword)
+        del newwords
 
-            # If not, then the resulting pattern updates would be...
-            newgreen=green
-            newyellow=yellow
-            newgrey=grey
-            for pos in range(5):
-                g = guessword[pos]
-                t = trueword[pos]
-                if g == t:
-                    newgreen[pos] == g
-                elif g in trueword and not g in newgreen and not g in newyellow:
-                    newyellow+=g
-                elif not g in trueword and not g in newgrey:
-                    newgrey+=g
+    # (end of trueword loop)
 
-            # So now I can generate a new wordlist...
-            newwords = list(wordlist)
-            newwords.remove(guessword)
-            newregex = buildRegex(newgreen, newyellow, newgrey)
-            filterWords(newwords, newregex)
+    # We can now calculate the average tree depth under guessword
+    guesswordscore /= len(words)
+    m2dict[guessword] = guesswordscore
 
-            # And then recurse to find the scores for each of my new words
-            l2resultdict = findTreeDepth(newwords, newgreen, newyellow, newgrey, prefix+" "+guessword)
+# (end of guessword loop)
 
-            # Find the average score for this guessword across all possible truewords
-            guesswordscore += sum(l2resultdict.values()) / len(l2resultdict)
-
-            del l2resultdict
-
-        # (end of trueword loop)
-
-        # We can now calculate the average tree depth under guessword
-        guesswordscore /= len(wordlist)
-        returndict[guessword] = guesswordscore
-
-    # (end of guessword loop)
-    return returndict
-
-# In the main program, call findTreeDepth to evaluate each candidate guess, then rank the results
-m2dict = findTreeDepth(words, greenpattern, yellowletters, greyletters)
 m2bestwords = sorted(m2dict.items(), key=operator.itemgetter(1), reverse=False)
 
 m2end = time.time()
