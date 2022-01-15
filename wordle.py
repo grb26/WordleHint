@@ -4,6 +4,7 @@ import os
 import re
 import getopt
 import operator
+import time
 import random
 
 def usage():
@@ -36,10 +37,48 @@ Examples:
     {progname} -l mywordlist.txt
 
     '''
-    print(message)
+    print(message, file=sys.stderr)
     sys.exit(1)
 
 # ------- Part 1: Find possible words ---------
+
+# Function to turn known letters into a compiled regex for word matching/elimination
+def buildRegex(green, yellow, grey):
+    if len(green) != 5:
+        print("\nFATAL: I only work on five-letter words. The green pattern must be of length 5 (or absent).\n", file=sys.stderr)
+        usage()
+    yellowregex=""
+    greyregex=""
+    for char in yellow:
+        yellowregex += "(?![^" + char + "]{5})"                     # Yellow means we know a character is present, so this regex says "must not contain five characters that aren't this one"
+    for char in grey:
+        if not (char in green or char in yellow):                   # Can't be grey AND yellow/green, so assume user error and ignore the grey
+            greyregex += "(?!.*" + char + ".*)"                     # Grey means we know a character is not present, so this regex says "must not contain this character"
+    # Compile regexes to implement inputs
+    regexstr = '^'+yellowregex+greyregex+green+'$'
+    return re.compile(regexstr)
+
+# Subroutine to filter (in place) a list of words, using the supplied regex
+def filterWords(wlist, regex):
+    for word in tuple(wlist):                                       # Need to create a copy of wlist, as we're modifying it place. Can't iterate over it and modify it at the same time, we end up shooting at a moving target.
+        if not regex.match(word):
+            wlist.remove(word)
+#    return wlist                                                    # Not necessary, as wlist is passed in by reference anyway, but harmless
+
+# Function to read a file into a list
+def readListFromFile(wordlist_filename):
+    if not ( os.path.isfile(wordlist_filename) and os.access(wordlist_filename, os.R_OK) ):
+        print("Could not read wordlist file",wordlist_filename, file=sys.stderr)
+        sys.exit(3)
+    fh = open(wordlist_filename,"r")
+    words = []
+    for line in fh.readlines():
+        w = line.rstrip().lower()
+        words.append(w)
+    fh.close()
+    return words
+
+
 
 # Read commandline arguments
 argv = sys.argv[1:]
@@ -48,18 +87,16 @@ try:
 except:
     usage()
 
-greenregex = "....."
+greenpattern = "....."    # Default: five characters, could be anything
 yellowletters = ""
-yellowregex = ""
 greyletters = ""
-greyregex = ""
 printall = False
 wordlist_filename = "wordlelist.txt"
 n = 1
 
 for opt,arg in opts:
     if opt == '-g':
-        greenregex = arg.lower()
+        greenpattern = arg.lower()
     if opt == '-y':
         yellowletters = arg.lower()
     if opt == '-e':
@@ -70,38 +107,13 @@ for opt,arg in opts:
         wordlist_filename = arg
     if opt == '-n':
         n = int(arg)
-for char in yellowletters:
-    if not char in greenregex:
-        yellowregex += "(?![^" + char + "]{5})" 
-for char in greyletters:
-    if not (char in greenregex or char in yellowletters):
-        greyregex += "(?!.*" + char + ".*)" 
 
-# Check inputs
-if len(greenregex) != 5:
-    print("\nFATAL: I only work on five-letter words. The green pattern must be of length 5 (or absent).\n")
-    usage()
+# Read and filter the word list, based on the supplied inputs, to get candidate words
+words = readListFromFile(wordlist_filename)
+regex = buildRegex(greenpattern, yellowletters, greyletters)
+filterWords(words, regex)
 
-# Compile regexes to implement inputs
-mask = re.compile('^'+yellowregex+greyregex+greenregex+'$')
-
-# Read the word list
-if not ( os.path.isfile(wordlist_filename) and os.access(wordlist_filename, os.R_OK) ):
-    print("Could not read wordlist file "+wordlist_filename)
-    sys.exit(3)
-fh = open(wordlist_filename,"r")
-wordsdict = {}
-for line in fh.readlines():
-    w = line.rstrip().lower()
-
-    # Skip it if it doesn't match the green & yellow constraints
-    if mask.match(w): 
-        wordsdict[w] = 1
-    
-fh.close()
-
-words=list(wordsdict.keys())            # Just to save typing wordsdict.keys() all the time
-
+# Display findings
 if len(words)>20 and not printall:
     print("There are", len(words), "candidate words")
     print("Random word:",random.choice(words))
@@ -114,13 +126,16 @@ else:
 
 # ------- Part 2: suggest a good (possibly optimal?) next guess ---------
 
+### Method 1: somewhat naive heuristic, aiming to hit greens (basically ignores yellows, so probably not optimal)
+m1start = time.time()
+
 # When converting to a score, the aim is to bisect the option space, so closest to 50% match is best
 goal = len(words)/2
 
 # Find letter frequencies in the un-fixed positions
 positions={}
 for pos in range(5):
-    if not greenregex[pos]==".":
+    if not greenpattern[pos]==".":
         continue
 
     positions[pos]={}
@@ -135,17 +150,113 @@ for pos in positions.keys():
         positions[pos][char] = abs(positions[pos][char] - goal)
 
 # Calculate a score for each word
+m1dict={}
 for word in words:
     score = 0
     for pos in positions.keys():
         score += positions[pos][word[pos]]
-    wordsdict[word]=score
+    m1dict[word]=score
 
 # Find the best options
-bestwords = sorted(wordsdict.items(), key=operator.itemgetter(1), reverse=False)
+m1bestwords = sorted(m1dict.items(), key=operator.itemgetter(1), reverse=False)
 
-print("\nFor the next guess, try",bestwords[0][0])
+m1end = time.time()
+
+print("\nFor the next guess, method 1 suggests that you try",m1bestwords[0][0])
 if n>1:
     print("\nOther reasonable options:")
-    for w in bestwords[1:n]:
+    for w in m1bestwords[1:n]:
         print(w[0])
+
+### Implementation 2: full brute-force of entire solution space
+m2start = time.time()
+
+# Function to calculate the expected guesses until a single candidate is reached, for each potential guess in wordlist
+# Returns a dictionary of { candidate_word:expected_guesses }. Sort this by value to find the best next guess.
+def findTreeDepth(wordlist, green, yellow, grey, prefix=""):
+
+    #print("Entering fTD with",len(wordlist),"words and g/y/g as",green, yellow, grey)
+
+    # If there's only one candidate, we have a winner.
+    if len(wordlist) == 1:
+        return {wordlist[0]:1}
+
+    ## If multiple possibilities, recursively try out options
+
+    # Initialise a dictionary to return
+    returndict = {}
+
+    # If I were to guess guessword...
+    for guessword in wordlist:
+
+        guesswordscore = 0
+
+        #print("Debug:",prefix,guessword)
+
+        # And if the real answer happens to be trueword...
+        for trueword in wordlist:
+
+            # Maybe we got lucky...
+            if guessword == trueword:
+                continue
+
+            #print("Debug: guessword is",guessword,"trueword is",trueword)
+
+            # If not, then the resulting pattern updates would be...
+            newgreen=green
+            newyellow=yellow
+            newgrey=grey
+            for pos in range(5):
+                g = guessword[pos]
+                t = trueword[pos]
+                if g == t:
+                    newgreen[pos] == g
+                elif g in trueword and not g in newgreen and not g in newyellow:
+                    newyellow+=g
+                elif not g in trueword and not g in newgrey:
+                    newgrey+=g
+
+            # So now I can generate a new wordlist...
+            newwords = list(wordlist)
+            newwords.remove(guessword)
+            newregex = buildRegex(newgreen, newyellow, newgrey)
+            filterWords(newwords, newregex)
+
+            # And then recurse to find the scores for each of my new words
+            l2resultdict = findTreeDepth(newwords, newgreen, newyellow, newgrey, prefix+" "+guessword)
+
+            # Find the average score for this guessword across all possible truewords
+            guesswordscore += sum(l2resultdict.values()) / len(l2resultdict)
+
+            del l2resultdict
+
+        # (end of trueword loop)
+
+        # We can now calculate the average tree depth under guessword
+        guesswordscore /= len(wordlist)
+        returndict[guessword] = guesswordscore
+
+    # (end of guessword loop)
+    return returndict
+
+# In the main program, call findTreeDepth to evaluate each candidate guess, then rank the results
+m2dict = findTreeDepth(words, greenpattern, yellowletters, greyletters)
+m2bestwords = sorted(m2dict.items(), key=operator.itemgetter(1), reverse=False)
+
+m2end = time.time()
+
+print("\nFor the next guess, method 2 suggests that you try",m2bestwords[0][0])
+if n>1:
+    print("\nOther reasonable options:")
+    for w in m2bestwords[1:n]:
+        print(w[0])
+
+print("SCORE COMPARISON")
+print("M1 recommendations, generated in",(m1end-m1start),"seconds")
+for i in range(n):
+    w = m1bestwords[i][0]
+    print(w, m1dict[w], m2dict[w])
+print("M2 recommendations, generated in",(m2end-m2start),"seconds")
+for i in range(n):
+    w = m2bestwords[i][0]
+    print(w, m1dict[w], m2dict[w])
