@@ -39,3 +39,4 @@ Now we have another green letter (A) and three more eliminated (L, I, N).
 `$ ./wordle.py -s sores:xxxgx alien:gxxgx`
 
 With the default word list, there is only one possible answer: 'ABBEY'. 
+We have solved today's Wordle puzzle!
