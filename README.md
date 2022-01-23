@@ -39,4 +39,7 @@ Now we know where the A is, and we have eliminated three more letters (L, I, N).
 `$ ./wordle.py -s tares:xyxgx alien:gxxgx`
 
 With the default word list, there is only one possible answer: 'ABBEY'. 
+
+![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=A) ![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=B) ![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=B) ![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=E) ![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=Y)
+
 We have solved today's Wordle puzzle!
