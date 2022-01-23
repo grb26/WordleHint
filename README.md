@@ -20,7 +20,7 @@ This is a python3 script, so you need to have python3 installed. Then you can ju
 
 Wordle starts with a blank 5-character word. We might guess 'TARES' first. The result is this:
 
-![.](https://via.placeholder.com/40/444444/FFFFFF?text=T) ![.](https://via.placeholder.com/40/AAAA00/FFFFFF?text=A) ![.](https://via.placeholder.com/40/444444/FFFFFF?text=R) ![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=E) ![.](https://via.placeholder.com/40/444444/FFFFFF?text=S)
+![.](https://via.placeholder.com/40/444444/FFFFFF?text=T) ![.](https://via.placeholder.com/40/CCAA00/FFFFFF?text=A) ![.](https://via.placeholder.com/40/444444/FFFFFF?text=R) ![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=E) ![.](https://via.placeholder.com/40/444444/FFFFFF?text=S)
 
 So we know that there is an E in the fourth position, an A somewhere (but not in the second position), and that the letters T, R and S do not appear.
 
@@ -34,7 +34,7 @@ The output tells us that there are now 7 possible words, and our next guess shou
 
 ![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=A) ![.](https://via.placeholder.com/40/444444/FFFFFF?text=L) ![.](https://via.placeholder.com/40/444444/FFFFFF?text=I) ![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=E) ![.](https://via.placeholder.com/40/444444/FFFFFF?text=N)
 
-Now we have another green letter (A) and three more eliminated (L, I, N). 
+Now we know where the A is, and we have eliminated three more letters (L, I, N). 
 
 `$ ./wordle.py -s tares:xyxgx alien:gxxgx`
 
