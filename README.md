@@ -9,12 +9,12 @@ This is a python3 script, so you need to have python3 installed. Then you can ju
 ## Parameters
 | Parameter | Description |
 |-----------|-------------|
-| -g <> | the green letter pattern, with dots where we don't have green letters e.g. 'CH..T' |
-| -y <> | the yellow letters, in any order |
-| -e <> | the eliminated (grey) letters, in any order |
-| -l <> | specify a different word list (default is ./wordlelist.txt) |
-| -n <> | specify the number of suggested next guesses (default is 1) |
-| -p | print all possible candidate words (normally only done if <20 candidates) |
+| -w <> | override the wordlist for possible solutions (default is allowed_solutions.txt)|
+| -g <> | specify a different guesslist (default is to use the solution wordlist above) |
+| -e | easy mode, i.e. allow guesses that would have been ruled out by previous green/yellow results (note that Wordle defaults to easy mode, but this is clearly cheating) |
+| -n <> | specify the number of suggested next guesses (default is 1, 0 prints all options) |
+| -f | fast mode - recommend a reasonable next guess, very quickly |
+| -s | slow mode - recommend a better next guess, quite slowly |
 
 ## Use
 
@@ -26,24 +26,16 @@ So we know that there is an E in the fourth position, and that the letters S, O 
 
 We can now use WordleHint:
 
-`$ ./wordle.py -g '...e.' -e 'sor'`
+`$ ./wordle.py -s sores:xxxgx`
 
-Here we have specified the green squares (-g) as four unknowns (.) plus an 'e' in position 4, and the eliminated letters (-e) as s, o & r. Note that upper/lower case doesn't matter. 
+Here we ran wordle.py in slow mode, and we have specified that the guess word 'sores' resulted in four eliminated letters (x's) and a green in the fourth position. Note that upper/lower case doesn't matter. 
 
-The output tells us that there are now 238 possible words, and our next guess should be 'LAVED'. 
+The output tells us that there are now 74 possible words, and our next guess should be 'ALIEN'. 
 
-![.](https://via.placeholder.com/40/444444/FFFFFF?text=L) ![.](https://via.placeholder.com/40/AAAA00/FFFFFF?text=A) ![.](https://via.placeholder.com/40/444444/FFFFFF?text=V) ![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=E) ![.](https://via.placeholder.com/40/444444/FFFFFF?text=D)
+![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=A) ![.](https://via.placeholder.com/40/444444/FFFFFF?text=L) ![.](https://via.placeholder.com/40/444444/FFFFFF?text=I) ![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=E) ![.](https://via.placeholder.com/40/444444/FFFFFF?text=N)
 
-Now we have a yellow letter (A) and three more eliminated (L, V, D). 
+Now we have another green letter (A) and three more eliminated (L, I, N). 
 
-`$ ./wordle.py -g '...e.' -e 'sorlvd' -y 'a'`
+`$ ./wordle.py -s sores:xxxgx alien:gxxgx`
 
-The next guess is 'WAKEN':
-
-![.](https://via.placeholder.com/40/444444/FFFFFF?text=W) ![.](https://via.placeholder.com/40/AAAA00/FFFFFF?text=A) ![.](https://via.placeholder.com/40/444444/FFFFFF?text=K) ![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=E) ![.](https://via.placeholder.com/40/444444/FFFFFF?text=N)
-
-No more successes, but three more eliminations: W, K & N.
-
-`$ ./wordle.py -g '...e.' -e 'sorlvdwkn' -y 'a'`
-
-We're now down to five possible words, and as it happens, the first one is correct: 'ABBEY'. 
+With the default word list, there is only one possible answer: 'ABBEY'. 
