@@ -8,11 +8,11 @@ This is a python3 script, so you need to have python3 installed. Then you can ju
 
 ## Parameters
 
-Command line format: ./wordle.py [options] guess1:result1 guess2:result2 ...
+Command line format: `./wordle.py [options] guess1:result1 guess2:result2 ...`
 
 A guess:result parameter should be a word already guessed, and the resulting colours (green = g, yellow = y, eliminated (black/grey) = x).
 
-e.g. ./wordle.py aback:gyyxx
+e.g. `./wordle.py aback:gyyxx`
 
 | Option | Description |
 |-----------|-------------|
@@ -50,3 +50,14 @@ With the default word list, there is only one possible answer: 'ABBEY'.
 ![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=A) ![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=B) ![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=B) ![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=E) ![.](https://via.placeholder.com/40/00AA00/FFFFFF?text=Y)
 
 We have solved today's Wordle puzzle!
+
+## Warning
+
+The computational workload scales with O(n^2). Each possible guess is evaluated against each possible solution. This means that that script is very fast when there are only a few possibilities (i.e. a small dictionary and/or lots of guess:result combinations that impose constraints on the solution space), and 
+*very* slow when there are lots of possibilities.
+
+Running this script with no options will cause it to search for an optimal first guess, using only the possible solution words. That's only about 2,000 possibilities, so it isn't ridiculus. 
+
+The same task with any permitted guess word (`-g allowed_guesses.txt`) is much larger: 10,000 guess words each evaluated against the 2,000 possibilities. On an 8-core machine, this takes over 30 minutes to run. To save you the trouble, the answer is ROATE (an alternative spelling of 'rote', as in 'to learn by rote'). 
+
+If you provide an even larger dictionary (which would be pointless for Wordle, but may be useful for other similar games), the compute time can get really silly.
