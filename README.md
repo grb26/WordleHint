@@ -4,10 +4,17 @@ Wordle is a great little online word game: https://www.powerlanguage.co.uk/wordl
 
 ## Installation
 
-This is a python3 script, so you need to have python3 installed. Then you can just save the files to your computer and run `wordle.py` from the command line. The word list (wordlelist.txt) needs to be in the same directory, unless you explicitly specify the path using -l. 
+This is a python3 script, so you need to have python3 installed. Then you can just save the files to your computer and run `wordle.py` from the command line. The word list (allowed_solutions.txt) needs to be in the same directory, unless you explicitly specify the path using -w. 
 
 ## Parameters
-| Parameter | Description |
+
+Command line format: ./wordle.py [options] guess1:result1 guess2:result2 ...
+
+A guess:result parameter should be a word already guessed, and the resulting colours (green = g, yellow = y, eliminated (black/grey) = x).
+
+e.g. ./wordle.py aback:gyyxx
+
+| Option | Description |
 |-----------|-------------|
 | -w <> | override the wordlist for possible solutions (default is allowed_solutions.txt)|
 | -g <> | specify a different guesslist (default is to use the solution wordlist above) |

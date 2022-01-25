@@ -8,6 +8,7 @@ import time
 import random
 import multiprocessing as mp
 import string
+import itertools
 
 def usage():
     print("Nope.")
@@ -231,13 +232,78 @@ def method3(trylist, wordlist):
 
     return m3dict
 
+# Method 2 - see how a each guessword would reduce the solution space
+def methodblind(trylist, wordlist, known, firstguess):
+
+    mybdict={}
+    cnt=0
+    pid=os.getpid()
+    starttime=time.time()
+
+    scale = len(trylist) * len(wordlist) / 10**5        # If this is large (>10^5) search space, we'll do a bit of extra logging
+
+    for secondguess in trylist:
+
+        if scale>1:
+            if cnt>0:
+                avetime = 1000*(time.time() - starttime)/cnt
+                esttime = (len(trylist)-cnt)*avetime/60000
+                print(f"PID {pid}: {cnt}/{len(trylist)}   Average {avetime:8.2f}ms   Remaining {esttime:4.1f} mins")
+            else:
+                print(f"PID {pid} initialized - let the crunching commence!")
+
+        guesswordscore = 0
+
+        # One of the words in wordlist must be the true answer. Evaluate guesses against each, and see what the resulting solution space would be.
+        for trueword in wordlist:
+            # print("Debug: guesses",firstguess,secondguess,"against trueword",trueword)
+
+            # Maybe we got lucky...
+            if firstguess == trueword or secondguess == trueword:   
+                continue                    # Don't add anything to the solution space count, as we found it
+
+            # If not, then the resulting pattern updates would be...
+            updates=[]
+            for guessword in [firstguess, secondguess]:
+                newknown = guessword + ':'
+                for pos in range(5):
+                    g = guessword[pos]
+                    t = trueword[pos]
+                    if g == t:
+                        newknown += 'g'
+                    elif g in trueword:
+                        newknown += 'y'
+                    else:
+                        newknown += 'x'
+                updates.append(newknown)
+            # print("Debug: new knowns are",newknown)
+            newregex = buildRegex(known+updates)
+
+            # ...and count how many words that would remove
+            kills = filterWords(wordlist, newregex, justCount=True)
+
+            # The score is the size of the remaining wordlist
+            guesswordscore += (len(wordlist) - kills) / len(wordlist)
+            # print("Debug: guesses",firstguess,secondguess,"against trueword",trueword,"scores",guesswordscore)
+
+        # (end of trueword loop)
+
+        # We can now calculate the average tree depth under this guess-pair
+        guesswordscore /= len(wordlist)
+        mybdict['+'.join([firstguess,secondguess])] = guesswordscore
+        cnt += 1 
+
+    return mybdict
+
+
+
 #### MAIN
 if __name__ == '__main__':
 
     # Read commandline arguments
     argv = sys.argv[1:]
     try:
-        opts, args = getopt.gnu_getopt(argv, "w:g:n:fse")
+        opts, args = getopt.gnu_getopt(argv, "w:g:n:fseb:")
     except:
         usage()
 
@@ -249,6 +315,7 @@ if __name__ == '__main__':
     fast = True 
     slow = True
     easy = False 
+    blind = False
 
     for opt,arg in opts:
         if opt == '-w':
@@ -263,6 +330,8 @@ if __name__ == '__main__':
             fast = False
         if opt == '-e':
             easy = True
+        if opt == '-b':
+            blind = arg.lower()
 
     if not fast and not slow:
         fast = True 
@@ -300,6 +369,27 @@ if __name__ == '__main__':
 
 
     # ------- Part 2: suggest a good (possibly optimal?) next guess ---------
+    if blind:
+        ### Niche requirement: come up with the best two guesses for any scenario, as a standard tactic for otherwise unassisted games
+        bdict={}
+        
+        # This part can take a while, so let's play with multi-processing.
+        cores = mp.cpu_count()
+        mypool = mp.Pool(processes=cores)
+        l = len(gwords)
+        wordslices = [gwords[int(l*(i/cores)):int(l*((i+1)/cores))] for i in range(cores)]
+        results = mypool.starmap(methodblind, [(wordslices[i], swords, known, blind) for i in range(cores)])
+        for res in results:
+            bdict.update(res)
+
+        bbestwords = sorted(bdict.items(), key=operator.itemgetter(1), reverse=False)
+
+        print("\nBest guesses:")
+        for w in bbestwords[0:n]:
+            print(w[0],"scored",w[1])
+        sys.exit(0)
+
+
     if fast:
         ### Method 1: somewhat naive heuristic, aiming to hit greens (basically ignores yellows, so probably not optimal)
         m1start = time.time()
