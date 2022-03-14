@@ -17,13 +17,12 @@ e.g. `./wordle.py aback:gyyxx`
 | Option | Description |
 |-----------|-------------|
 | -w <> | override the wordlist for possible solutions (default is allowed_solutions.txt)|
-| -g <> | specify a different guesslist (default is to use the solution wordlist above) |
+| -g <> | specify a different guesslist (default is allowed_guesses.txt) |
+| -r | reuse the solution wordlist as the guesslist (equivalent to -g allowed_solutions.txt, or whatever argument you pass to -w) |
 | -e | easy mode, i.e. allow guesses that would have been ruled out by previous green/yellow results (note that Wordle defaults to easy mode, but this is clearly cheating) |
-| -n <> | specify the number of suggested next guesses (default is 1, 0 prints all options) |
-| -f | fast mode - recommend a reasonable next guess, very quickly |
-| -s | slow mode - recommend a better next guess, quite slowly |
+| -n <> | print the top N guesses (default is 1) |
 
-## Use
+## Usage Example
 
 Wordle starts with a blank 5-character word. We might guess 'TARES' first. The result is this:
 
@@ -33,9 +32,9 @@ So we know that there is an E in the fourth position, an A somewhere (but not in
 
 We can now use WordleHint:
 
-`$ ./wordle.py -s tares:xyxgx`
+`$ ./wordle.py tares:xyxgx`
 
-Here we ran wordle.py in slow mode, and we have specified that the guess word 'sores' resulted in three eliminated letters (x's), plus a green in the fourth position and a yellow in the second. Note that upper/lower case doesn't matter.
+Here we specified that the guess word 'tares' resulted in three eliminated letters (x's), plus a green in the fourth position and a yellow in the second. Note that upper/lower case doesn't matter.
 
 The output tells us that there are now 7 possible words, and our next guess should be 'ALIEN'. 
 
@@ -43,7 +42,7 @@ The output tells us that there are now 7 possible words, and our next guess shou
 
 Now we know where the A is, and we have eliminated three more letters (L, I, N). 
 
-`$ ./wordle.py -s tares:xyxgx alien:gxxgx`
+`$ ./wordle.py tares:xyxgx alien:gxxgx`
 
 With the default word list, there is only one possible answer: 'ABBEY'. 
 
@@ -53,11 +52,4 @@ We have solved today's Wordle puzzle!
 
 ## Warning
 
-The computational workload scales with O(n^2). Each possible guess is evaluated against each possible solution. This means that that script is very fast when there are only a few possibilities (i.e. a small dictionary and/or lots of guess:result combinations that impose constraints on the solution space), and 
-*very* slow when there are lots of possibilities.
-
-Running this script with no options will cause it to search for an optimal first guess, using only the possible solution words. That's only about 2,000 possibilities, so it isn't ridiculus. 
-
-The same task with any permitted guess word (`-g allowed_guesses.txt`) is much larger: 10,000 guess words each evaluated against the 2,000 possibilities. On an 8-core machine, this takes over 30 minutes to run. To save you the trouble, the answer is ROATE (an alternative spelling of 'rote', as in 'to learn by rote'). 
-
-If you provide an even larger dictionary (which would be pointless for Wordle, but may be useful for other similar games), the compute time can get really silly.
+The computational workload scales with O(n^2). Each possible guess is evaluated against each possible solution. This means that that script is very fast when there are only a few possibilities (i.e. a small dictionary and/or lots of guess:result combinations that impose constraints on the solution space), but if you feed it a much larger dictionary, it may take a **LOT** longer to run.
