@@ -53,3 +53,5 @@ We have solved today's Wordle puzzle!
 ## Warning
 
 The computational workload scales with O(n^2). Each possible guess is evaluated against each possible solution. This means that that script is very fast when there are only a few possibilities (i.e. a small dictionary and/or lots of guess:result combinations that impose constraints on the solution space), but if you feed it a much larger dictionary, it may take a **LOT** longer to run.
+
+If the solution space is more than 10^5 items, the script will print regular progress updates so that you can see how long it is likely to take to complete, and get a feel for the multithreading behaviour.
