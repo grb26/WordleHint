@@ -20,15 +20,21 @@ Wordle Hinter: find words that might fit a Wordle puzzle.
 Usage:
     {progname} [-e] [-w wordlist] [-g guesslist] [-n N] [-r] [word1:result1 word2:result2 ...]
 
-The result pattern should use characters g, y & x to represent green (correct), yellow (present in the word but not in that location) and grey (not present in the word) respectively. For example: amaze:yxgxg
+The 'result' pattern should use characters g, y & x:
+    g = green (correct letter in the correct position)
+    y = yellow (the letter is present in the word but not in that position) 
+    x = grey (the letter not present in the word) 
+For example: 'amaze:yxgxg'
 
-Inputs are not case sensitive. If no word:result patterns are specified, attempt to calculate the optimal first guess.
+Inputs are not case sensitive. 
 
--e              enables 'Easy mode', whereby guesses do not need to respect the green & yellow results previously obtained (this is the default behaviour for Wordle).
+If no word:result patterns are specified, attempt to calculate the optimal first guess.
 
--w <wordlist>   overrides the default wordlist filename, if you want to use a different dictionary. This is the list of possible solution words.
--g <guesslist>  specifies a different guesslist filename. This is the list of words to consider in guesses. It can sometimes be optimal to guess a word that cannot possibly be the solution, as it reveals more information. 
--r              reuses the solution wordlist as the guesslist. It is equivalent to -g <wordlist>, but shorter. 
+-e              enables 'Easy mode'
+
+-w <wordlist>   overrides the default list of possible solutions
+-g <guesslist>  overrides the default list of allowed guesses
+-r              reuses the solution wordlist as the guesslist (equivalent to -g <wordlist>) 
 
 -n <N>          prints the best N options for the next guess. If omitted, default is N=1.
 
