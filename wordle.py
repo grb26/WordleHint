@@ -247,5 +247,9 @@ if __name__ == '__main__':
     # Print the scores of the top N guesses (if -n was specified on the command line)
     if n>1:
         print("\nRanked options:")
-        for w in bestwords[0:min(n, len(bestwords))]:
-            print(f'{w[0]} (score: {w[1]:4.4f})')
+        for i in range(min(n, len(bestwords))):
+            if bestwords[i][0] in swords:
+                highlight = ' - valid solution'
+            else:
+                highlight = ''
+            print(f'{i+1}: {bestwords[i][0]} (score: {bestwords[i][1]:4.4f}){highlight}')
