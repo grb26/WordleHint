@@ -21,6 +21,7 @@ e.g. `./wordle.py aback:gyyxx`
 | -r | reuse the solution wordlist as the guesslist (equivalent to -g allowed_solutions.txt, or whatever argument you pass to -w) |
 | -e | easy mode, i.e. allow guesses that would have been ruled out by previous green/yellow results (note that Wordle defaults to easy mode, but this is clearly cheating) |
 | -n <> | print the top N guesses (default is 1) |
+| -a | print all candidate solutions (default is to only do this if there are <20 solutions) |
 
 ## Usage Example
 

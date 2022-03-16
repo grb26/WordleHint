@@ -18,7 +18,7 @@ def usage():
 Wordle Hinter: find words that might fit a Wordle puzzle.
 
 Usage:
-    {progname} [-e] [-w wordlist] [-g guesslist] [-n N] [-r] [word1:result1 word2:result2 ...]
+    {progname} [-e] [-w wordlist] [-g guesslist] [-r] [-n N] [-a] [word1:result1 word2:result2 ...]
 
 The 'result' pattern should use characters g, y & x:
     g = green (correct letter in the correct position)
@@ -37,6 +37,7 @@ If no word:result patterns are specified, attempt to calculate the optimal first
 -r              reuses the solution wordlist as the guesslist (equivalent to -g <wordlist>) 
 
 -n <N>          prints the best N options for the next guess. If omitted, default is N=1.
+-a              prints all possible solution words.
 
 '''
 
@@ -161,7 +162,7 @@ if __name__ == '__main__':
     # Read commandline arguments
     argv = sys.argv[1:]
     try:
-        opts, args = getopt.gnu_getopt(argv, "w:g:n:e:r")
+        opts, args = getopt.gnu_getopt(argv, "w:g:n:e:ra")
     except:
         usage()
 
@@ -171,6 +172,7 @@ if __name__ == '__main__':
     n = 1
     easy = False 
     reuse_wordlist_for_guesslist = False
+    showall = False
 
     for opt,arg in opts:
         if opt == '-w':
@@ -181,6 +183,8 @@ if __name__ == '__main__':
             n = int(arg)
         if opt == '-e':
             easy = True
+        if opt == '-a':
+            showall = True
         if opt == '-r':
             reuse_wordlist_for_guesslist = True
 
@@ -206,7 +210,7 @@ if __name__ == '__main__':
     elif len(swords)==2:
         print("Two possible solutions:", swords)
         sys.exit(0)
-    elif len(swords)>20:
+    elif len(swords)>20 and not showall:
         print("There are", len(swords), "candidate solutions, including gems such as",random.choice(swords),"and",random.choice(swords))
     elif len(swords)==0:
         print("No possible solutions found. We're gonna need a bigger wordlist.")
