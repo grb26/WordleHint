@@ -211,12 +211,12 @@ if __name__ == '__main__':
         print("Two possible solutions:", swords)
         sys.exit(0)
     elif len(swords)>20 and not showall:
-        print("There are", len(swords), "candidate solutions, including gems such as",random.choice(swords),"and",random.choice(swords))
+        print("There are", len(gwords),"valid guesses available. There are",len(swords), "candidate solutions, including gems such as",random.choice(swords),"and",random.choice(swords))
     elif len(swords)==0:
         print("No possible solutions found. We're gonna need a bigger wordlist.")
         sys.exit(0)
     else:
-        print("\nCandidate words:")
+        print("\nThere are",len(gwords),"valid guesses available. There are",len(swords),"candidate solutions:")
         print("\n".join(swords))
 
 
