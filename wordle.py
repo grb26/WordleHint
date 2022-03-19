@@ -26,7 +26,7 @@ The 'result' pattern should use characters g, y & x:
     x = grey (the letter not present in the word) 
 For example: 'amaze:yxgxg'
 
-Inputs are not case sensitive. 
+Word:result inputs are not case sensitive, although the flags (-r, -n etc) are. 
 
 If no word:result patterns are specified, attempt to calculate the optimal first guess.
 
@@ -51,22 +51,22 @@ def buildRegex(known):
     grey=""
     regex=""
     for clue in known:
-        if not re.match('^[a-z]{5}:[gyxe]{5}$', clue):
+        if not re.match('^[A-Z]{5}:[GYXE]{5}$', clue):
             usage()
 
         for lpos in range(5):       # Letter position
             rpos = lpos+6           # Result position
         
-            if clue[rpos] == 'g':
+            if clue[rpos] == 'G':
                 green = green[:lpos] + clue[lpos] + green[lpos+1:]
             
-            elif clue[rpos] == 'y':
+            elif clue[rpos] == 'Y':
                 yellow += "(?=.*" + clue[lpos] + ")(?!" + ("."*lpos) + clue[lpos] + ("."*(4-lpos)) + ")"
             
-            elif clue[rpos] == 'x':
+            elif clue[rpos] == 'X':
                 grey += "(?!.*" + clue[lpos] + ")"
 
-            elif clue[rpos] == 'e':
+            elif clue[rpos] == 'E':
                 pass                # We're in easy mode, so this position is not imposing a constraint
 
             else:
@@ -78,7 +78,7 @@ def buildRegex(known):
 
 # Filter guesslist in easy mode, where we don't have to respect yellow & green results
 def buildEasyRegex(known):
-    myknown = [ clue[:6] + re.sub('[yg]', 'e', clue[6:]) for clue in known ]
+    myknown = [ clue[:6] + re.sub('[YG]', 'E', clue[6:]) for clue in known ]
     return buildRegex(myknown)
 
 # Subroutine to filter (in place) a list of words, using the supplied regex, optionally just returning the number of words that would have been removed without actually doing it
@@ -101,7 +101,7 @@ def readListFromFile(filename):
     fh = open(filename,"r")
     words = []
     for line in fh.readlines():
-        w = line.rstrip().lower()
+        w = line.rstrip().upper()
         words.append(w)
     fh.close()
     return words
@@ -130,17 +130,17 @@ def rankGuesses(guesslist, solutionlist, known):
         guesswordscore = 0
 
         # Information theory: estimate the entropy of this guessword by calculating -SUM[ P(x).log2(P(x)) ] over all outcomes x.
-        # x is an outcome pattern (e.g. 'gxyxy') for a particular guess.
+        # x is an outcome pattern (e.g. 'GXYXY') for a particular guess.
         counter = {}
         for sword in solutionlist:
             result = ''
             for pos in range(5):
                 if sword[pos] == guessword[pos]:
-                    result += 'g'
+                    result += 'G'
                 elif sword[pos] in guessword:
-                    result += 'y'
+                    result += 'Y'
                 else:
-                    result += 'x'
+                    result += 'X'
             if result in counter:
                 counter[result] += 1
             else:
@@ -164,9 +164,10 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.gnu_getopt(argv, "w:g:n:e:ra")
     except:
+        print('Failed to parse inputs correctly')
         usage()
 
-    known = [x.lower() for x in args]        # Remaining options after parsing out the getopt params
+    known = [x.upper() for x in args]        # Remaining options after parsing out the getopt params
     wordlist_filename = "allowed_solutions.txt"
     guesslist_filename = "allowed_guesses.txt"      # This list contains guesses permitted by Wordle. Much larger than the words it actually picks solutions from.
     n = 1
