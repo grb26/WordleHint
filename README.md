@@ -20,7 +20,8 @@ e.g. `./wordle.py aback:gyyxx`
 | -g <> | specify a different guesslist (default is allowed_guesses.txt). It can be optimal to make guesses that are not in the list of possible solutions, because it can narrow down the solution space faster. If you don't like this behaviour, use -r to quickly stop it. |
 | -r | reuse the solution wordlist as the guesslist (equivalent to -g allowed_solutions.txt, or whatever argument you pass to -w) |
 | -e | easy mode, i.e. allow guesses that would have been ruled out by previous green/yellow results (note that Wordle defaults to easy mode, but this is clearly cheating) |
-| -n <> | print the top N guesses (default is 1) |
+| -s <> | display the score for the specifed guess (useful for settling arguments with friends) |
+| -n <> | rank the top N guesses with scores |
 | -a | print all candidate solutions (default is to only do this if there are <20 solutions) |
 
 ## Usage Example

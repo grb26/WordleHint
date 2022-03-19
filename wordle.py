@@ -36,8 +36,10 @@ If no word:result patterns are specified, attempt to calculate the optimal first
 -g <guesslist>  overrides the default list of allowed guesses
 -r              reuses the solution wordlist as the guesslist (equivalent to -g <wordlist>) 
 
--n <N>          prints the best N options for the next guess. If omitted, default is N=1.
--a              prints all possible solution words.
+-s <guess>      prints the score for <guess> as the next guess, against the best score in <guesslist>
+-n <N>          prints the best N options for the next guess, with scores
+
+-a              prints all possible solution words
 
 '''
 
@@ -162,7 +164,7 @@ if __name__ == '__main__':
     # Read commandline arguments
     argv = sys.argv[1:]
     try:
-        opts, args = getopt.gnu_getopt(argv, "w:g:n:e:ra")
+        opts, args = getopt.gnu_getopt(argv, "w:g:n:e:ras:")
     except:
         print('Failed to parse inputs correctly')
         usage()
@@ -174,6 +176,7 @@ if __name__ == '__main__':
     easy = False 
     reuse_wordlist_for_guesslist = False
     showall = False
+    showscore = False
 
     for opt,arg in opts:
         if opt == '-w':
@@ -188,6 +191,8 @@ if __name__ == '__main__':
             showall = True
         if opt == '-r':
             reuse_wordlist_for_guesslist = True
+        if opt == '-s':
+            showscore = arg.rstrip().upper()
 
     if reuse_wordlist_for_guesslist:
         guesslist_filename = wordlist_filename
@@ -209,7 +214,7 @@ if __name__ == '__main__':
         print("The only solution is", swords[0])
         sys.exit(0)
     elif len(swords)==2:
-        print("Two possible solutions:", swords)
+        print("Only two possible solutions:", swords)
         sys.exit(0)
     elif len(swords)>20 and not showall:
         print("There are", len(gwords),"valid guesses available. There are",len(swords), "candidate solutions, including gems such as",random.choice(swords),"and",random.choice(swords))
@@ -245,9 +250,9 @@ if __name__ == '__main__':
         if bestwords[0][1] == bestwords[i][1]:
             print("For the next guess, try",bestwords[i][0])
         else:
-            print(f"The best guess in your guess list is {bestwords[0][0]}, with a score of {bestwords[0][1]:4.4f}")
+            print(f"The best guess in your guess list is {bestwords[0][0]}, with a score of {bestwords[0][1]:1.4f}")
             print("That's not in the solution list, though.")
-            print(f"The best guess in the solution list is {bestwords[i][0]}, with a score of {bestwords[i][1]:4.4f}")
+            print(f"The best guess in the solution list is {bestwords[i][0]}, with a score of {bestwords[i][1]:1.4f}")
 
     # Print the scores of the top N guesses (if -n was specified on the command line)
     if n>1:
@@ -257,4 +262,14 @@ if __name__ == '__main__':
                 highlight = ' - valid solution'
             else:
                 highlight = ''
-            print(f'{i+1}: {bestwords[i][0]} (score: {bestwords[i][1]:4.4f}){highlight}')
+            print(f'{i+1}: {bestwords[i][0]} (score: {bestwords[i][1]:1.4f}){highlight}')
+
+    # Show the score of the specific word queried in the -s parameter, if present
+    if showscore:
+        if showscore in gwords:
+            i=0
+            while not bestwords[i][0] == showscore:
+                i+=1
+            print(f'{showscore} would score {guessdict[showscore]:1.4f}, and ranks {i} out of {len(gwords)} valid guesses. The top guess {bestwords[0][0]} scored {bestwords[0][1]:1.4f}.')
+        else:
+            print(showscore,"is not a valid guess.")
