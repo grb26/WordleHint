@@ -214,7 +214,7 @@ if __name__ == '__main__':
         print("The only solution is", swords[0])
         sys.exit(0)
     elif len(swords)==2:
-        print("Only two possible solutions:", swords)
+        print("Only two possible solutions:", swords[0], "and", swords[1])
         sys.exit(0)
     elif len(swords)>20 and not showall:
         print("There are", len(gwords),"valid guesses available. There are",len(swords), "candidate solutions, including gems such as",random.choice(swords),"and",random.choice(swords))
@@ -270,6 +270,9 @@ if __name__ == '__main__':
             i=0
             while not bestwords[i][0] == showscore:
                 i+=1
-            print(f'{showscore} would score {guessdict[showscore]:1.4f}, and ranks {i} out of {len(gwords)} valid guesses. The top guess {bestwords[0][0]} scored {bestwords[0][1]:1.4f}.')
+            if bestwords[0][1] > guessdict[showscore]:
+                print(f'{showscore} would score {guessdict[showscore]:1.4f}, and ranks {i+1} out of {len(gwords)} valid guesses. The top guess {bestwords[0][0]} scored {bestwords[0][1]:1.4f}.')
+            else:
+                print(f'{showscore} would score {guessdict[showscore]:1.4f}, which is as good as it gets! Top guess!')
         else:
             print(showscore,"is not a valid guess.")
