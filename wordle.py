@@ -262,7 +262,7 @@ if __name__ == '__main__':
                 highlight = ' - valid solution'
             else:
                 highlight = ''
-            print(f'{i+1}: {bestwords[i][0]} (score: {bestwords[i][1]:1.4f}){highlight}')
+            print(f'{i+1:3n}: {bestwords[i][0]} (score: {bestwords[i][1]:1.4f}){highlight}')
 
     # Show the score of the specific word queried in the -s parameter, if present
     if showscore:
