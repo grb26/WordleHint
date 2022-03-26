@@ -75,7 +75,7 @@ def buildRegex(known):
                 usage()     # Shouldn't really be possible to get here
 
     regex = "^" + yellow + grey + green + "$"
-    # print("Debug: regex is", regex)
+    # print("Debug: known was",known,"regex is", regex)
     return re.compile(regex)
 
 # Filter guesslist in easy mode, where we don't have to respect yellow & green results
@@ -121,13 +121,14 @@ def rankGuesses(guesslist, solutionlist, known):
 
     for guessword in guesslist:
 
-        if scale>1:
-            if cnt>0:
-                avetime = 1000*(time.time() - starttime)/cnt
-                esttime = (len(guesslist)-cnt)*avetime/60000
-                print(f"PID {pid}: {cnt}/{len(guesslist)}   Average {avetime:8.2f}ms   Remaining {esttime:4.1f} mins")
-            else:
-                print(f"PID {pid} initialized - let the crunching commence!")
+        # Removed logging, because the updated algorithm really doesn't take long even with no constraints (TODO: enable via command-line option)
+        # if scale>1:
+        #     if cnt>0:
+        #         avetime = 1000*(time.time() - starttime)/cnt
+        #         esttime = (len(guesslist)-cnt)*avetime/60000
+        #         print(f"PID {pid}: {cnt}/{len(guesslist)}   Average {avetime:8.2f}ms   Remaining {esttime:4.1f} mins")
+        #     else:
+        #         print(f"PID {pid} initialized - let the crunching commence!")
 
         guesswordscore = 0
 
@@ -164,7 +165,7 @@ if __name__ == '__main__':
     # Read commandline arguments
     argv = sys.argv[1:]
     try:
-        opts, args = getopt.gnu_getopt(argv, "w:g:n:e:ras:")
+        opts, args = getopt.gnu_getopt(argv, "w:g:n:eras:")
     except:
         print('Failed to parse inputs correctly')
         usage()
